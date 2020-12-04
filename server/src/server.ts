@@ -5,34 +5,32 @@ import express from "express";
 import { Request, Response } from "express";
 import session from "express-session";
 import { createConnection, Connection } from "typeorm";
+import database from "./config/database";
 import bodyParser from "body-parser";
 import path from "path";
+import { ApolloServer } from "apollo-server-express";
+import { Resolver, Query, buildSchema } from "type-graphql";
 
-const env: string = process.env.NODE_ENV || "development";
-const PORT: any = process.env.PORT;
+const dev: boolean = process.env.NODE_ENV === "development";
+
+@Resolver()
+class Hello {
+    @Query(() => String)
+    async hello() {
+        return "Hello, Wanker.";
+    }
+}
 
 const main = async () => {
-    const db: Connection = await createConnection({
-        type: "postgres",
-        url: process.env.DB_URI,
-        port: 5432,
-        username: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.DB_NAME,
-        synchronize: true,
-        logging: true,
-        ssl: true,
-        extra: {
-            ssl: {
-                rejectUnauthorized: false,
-            },
-        },
-        entities: ["src/entity/**/*.ts"],
-        migrations: ["src/migration/**/*.ts"],
-        subscribers: ["src/subscriber/**/*.ts"],
-    });
+    const db: Connection = await createConnection(database);
 
     const app = express();
+
+    const apolloServer = new ApolloServer({
+        schema: await buildSchema({
+            resolvers: [Hello],
+        }),
+    });
 
     // Middleware
     app.use(
@@ -49,8 +47,10 @@ const main = async () => {
         res.send("Hello, Bastard!");
     });
 
-    app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}.`);
+    apolloServer.applyMiddleware({ app });
+
+    app.listen(process.env.PORT, () => {
+        console.log(`Server running on http://localhost:${process.env.PORT}.`);
     });
 };
 main().catch((err) => {
