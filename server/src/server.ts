@@ -22,7 +22,7 @@ class Hello {
 }
 
 const main = async () => {
-    const db: Connection = await createConnection(database);
+    const orm: Connection = await createConnection(database);
 
     const app = express();
 
@@ -30,12 +30,13 @@ const main = async () => {
         schema: await buildSchema({
             resolvers: [Hello],
         }),
+        context: ({ req, res }) => ({ req, res }),
     });
 
     // Middleware
     app.use(
         cors({
-            origin: "*", // Be sure to switch to your production domain
+            origin: "*", // Switch to production domain
             optionsSuccessStatus: 200,
             credentials: true,
         })
