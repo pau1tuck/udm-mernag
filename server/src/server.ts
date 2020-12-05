@@ -1,5 +1,5 @@
-import "dotenv/config.js";
 import "reflect-metadata";
+import "dotenv/config.js";
 import cors from "cors";
 import express from "express";
 import { Request, Response } from "express";
@@ -10,6 +10,7 @@ import bodyParser from "body-parser";
 import path from "path";
 import { ApolloServer } from "apollo-server-express";
 import { Resolver, Query, buildSchema } from "type-graphql";
+import { UserResolver } from "./resolvers/UserResolver";
 
 const dev: boolean = process.env.NODE_ENV === "development";
 
@@ -28,7 +29,7 @@ const main = async () => {
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [Hello],
+            resolvers: [Hello, UserResolver],
         }),
         context: ({ req, res }) => ({ req, res }),
     });

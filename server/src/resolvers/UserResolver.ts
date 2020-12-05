@@ -5,9 +5,14 @@ import {
     Arg,
     ObjectType,
     Field,
+    UseMiddleware,
+    Ctx,
 } from "type-graphql";
 import { hash, compare } from "bcryptjs";
+import { sign } from "jsonwebtoken";
 import { User } from "../entities/User";
+import { IContext } from "../config/types";
+import { isAuthenticated } from "../utils/isAuthenticated";
 
 @ObjectType()
 class LoginResponse {
@@ -20,6 +25,12 @@ export class UserResolver {
     @Query(() => [User])
     async getUsers() {
         return await User.find();
+    }
+
+    @Query(() => String)
+    @UseMiddleware(isAuthenticated)
+    async Me(@Ctx() { payload }: IContext) {
+        return `User ID: ${payload!.userId}`;
     }
 
     @Mutation(() => Boolean)
@@ -64,7 +75,9 @@ export class UserResolver {
         }
 
         return {
-            accessToken: "jhfksjhdk",
+            accessToken: sign({ userId: user.id }, "MySecretKey", {
+                expiresIn: "15m",
+            }),
         };
     }
 }
