@@ -1,3 +1,4 @@
+import { Request } from "express";
 import {
     Resolver,
     Query,
@@ -60,7 +61,8 @@ export class UserResolver {
     @Mutation(() => LoginResponse)
     async Login(
         @Arg("email") email: string,
-        @Arg("password") password: string
+        @Arg("password") password: string,
+        @Ctx() { req }: IContext
     ) {
         const user = await User.findOne({ where: { email } });
 
@@ -74,9 +76,12 @@ export class UserResolver {
             throw new Error("Incorrect password");
         }
 
+        req.session!.userId = user.id;
+
         return {
             accessToken: sign({ userId: user.id }, "MySecretKey", {
                 expiresIn: "15m",
+                algorithm: "RS256",
             }),
         };
     }

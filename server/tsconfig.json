@@ -3,7 +3,7 @@
         "incremental": true,
         "target": "es6",
         "module": "commonjs",
-        "lib": ["ES5", "ES6", "DOM"],
+        "lib": ["ES5", "ES6", "DOM", "esnext.asynciterable"],
         "allowJs": true,
         // "checkJs": true,                       /* Report errors in .js files. */
         // "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
@@ -28,6 +28,7 @@
         /* Strict Type-Checking Options */
         "strict": true,
         "noImplicitAny": true,
+
         // "strictNullChecks": true,              /* Enable strict null checks. */
         // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
         // "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */

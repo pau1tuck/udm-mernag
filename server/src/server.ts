@@ -1,18 +1,22 @@
 import "reflect-metadata";
 import "dotenv/config.js";
-import cors from "cors";
 import express from "express";
 import { Request, Response } from "express";
+
+import { RedisStore, redisClient } from "./config/redis";
 import session from "express-session";
+
 import { createConnection, Connection } from "typeorm";
 import database from "./config/database";
-import bodyParser from "body-parser";
-import path from "path";
+
 import { ApolloServer } from "apollo-server-express";
 import { Resolver, Query, buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
 
-const dev: boolean = process.env.NODE_ENV === "development";
+import cors from "cors";
+import bodyParser from "body-parser";
+
+const production: boolean = process.env.NODE_ENV === "production";
 
 @Resolver()
 class Hello {
@@ -27,9 +31,30 @@ const main = async () => {
 
     const app = express();
 
+    app.use(
+        session({
+            name: "jwt",
+            store: new RedisStore({
+                client: redisClient,
+                disableTouch: true,
+                disableTTL: true,
+            }),
+            cookie: {
+                maxAge: 1000 * 60 * 60 * 24 * 365,
+                httpOnly: true,
+                sameSite: "lax",
+                secure: production,
+            },
+            secret: "keyboard cat",
+            resave: false,
+            saveUninitialized: false,
+        })
+    );
+
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
             resolvers: [Hello, UserResolver],
+            validate: false,
         }),
         context: ({ req, res }) => ({ req, res }),
     });
