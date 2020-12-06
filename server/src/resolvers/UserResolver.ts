@@ -1,4 +1,3 @@
-import { Request } from "express";
 import {
     Resolver,
     Query,
@@ -76,7 +75,7 @@ export class UserResolver {
             throw new Error("Incorrect password");
         }
 
-        req.session!.userId = user.id;
+        req.session.userId = user.id;
 
         return {
             accessToken: sign({ userId: user.id }, "MySecretKey", {

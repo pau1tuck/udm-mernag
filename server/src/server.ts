@@ -56,7 +56,7 @@ const main = async () => {
             resolvers: [Hello, UserResolver],
             validate: false,
         }),
-        context: ({ req, res }) => ({ req, res }),
+        context: ({ req, res }: any) => ({ req, res }),
     });
 
     // Middleware
