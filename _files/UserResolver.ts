@@ -9,19 +9,28 @@ import {
     Ctx,
 } from "type-graphql";
 import { hash, compare } from "bcryptjs";
+import { sign } from "jsonwebtoken";
 import { User } from "../entities/User";
 import { IContext } from "../config/types";
-import { isAuthenticated } from "../utils/authentication";
+import { isAuthenticated } from "../utils/isAuthenticated";
 
-@Resolver(User)
+@ObjectType()
+class LoginResponse {
+    @Field()
+    accessToken!: string;
+}
+
+@Resolver()
 export class UserResolver {
-    @Query(() => User, { nullable: true })
-    Me(@Ctx() { req }: IContext) {
-        // you are not logged in
-        if (!req.session.userId) {
-            return null;
-        }
-        return User.findOne(req.session.userId);
+    @Query(() => [User])
+    async getUsers() {
+        return await User.find();
+    }
+
+    @Query(() => String)
+    @UseMiddleware(isAuthenticated)
+    async Me(@Ctx() { payload }: IContext) {
+        return `User ID: ${payload!.userId}`;
     }
 
     @Mutation(() => Boolean)
@@ -44,30 +53,35 @@ export class UserResolver {
             console.log(err);
             return false;
         }
+
         return true;
     }
 
-    @Mutation(() => User, { nullable: true })
+    @Mutation(() => LoginResponse)
     async Login(
         @Arg("email") email: string,
         @Arg("password") password: string,
-        @Ctx() ctx: IContext
-    ): Promise<User | null> {
+        @Ctx() { req }: IContext
+    ) {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            throw new Error("User not registered");
+            throw new Error("Email not registered");
         }
 
-        const verify = await compare(password, user.password);
+        const verify = compare(password, user.password);
 
         if (!verify) {
             throw new Error("Incorrect password");
         }
 
-        ctx.req.session!.userId = user.id;
-        ctx.req.session!.isAdmin = user.isAdmin;
+        req.session.userId = user.id;
 
-        return user;
+        return {
+            accessToken: sign({ userId: user.id }, "MySecretKey", {
+                expiresIn: "15m",
+                algorithm: "RS256",
+            }),
+        };
     }
 }
