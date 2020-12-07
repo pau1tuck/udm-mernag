@@ -1,5 +1,7 @@
 import { createConnection } from "typeorm";
 import path from "path";
+import { User } from "../entities/User";
+import { Track } from "../entities/Track";
 
 export default {
     type: "postgres",
@@ -16,7 +18,7 @@ export default {
             rejectUnauthorized: false,
         },
     },
-    entities: [path.join(__dirname, "./entities/**/*.ts")],
-    migrations: [path.join(__dirname, "./migrations/**/*.ts")],
-    subscribers: [path.join(__dirname, "./subscribers/**/*.ts")],
+    entities: [User, Track],
+    migrations: [path.join(__dirname, "/migrations/**/*.ts")],
+    subscribers: [path.join(__dirname, "/subscribers/**/*.ts")],
 } as Parameters<typeof createConnection>[0];

@@ -11,10 +11,16 @@ import {
 import { hash, compare } from "bcryptjs";
 import { User } from "../entities/User";
 import { IContext } from "../config/types";
-import { isAuthenticated } from "../utils/authentication";
+import { isAdmin } from "../utils/permissions";
 
 @Resolver(User)
 export class UserResolver {
+    @Query(() => [User])
+    @UseMiddleware(isAdmin)
+    async Users(): Promise<User[]> {
+        return await User.find();
+    }
+
     @Query(() => User, { nullable: true })
     Me(@Ctx() { req }: IContext) {
         // you are not logged in
@@ -29,7 +35,8 @@ export class UserResolver {
         @Arg("firstName") firstName: string,
         @Arg("lastName") lastName: string,
         @Arg("email") email: string,
-        @Arg("password") password: string
+        @Arg("password") password: string,
+        @Arg("isAdmin") isAdmin: boolean
     ) {
         const hashedPassword = await hash(password, 13);
         // let user = null;
@@ -39,6 +46,7 @@ export class UserResolver {
                 lastName,
                 email,
                 password: hashedPassword,
+                isAdmin,
             });
         } catch (err) {
             console.log(err);

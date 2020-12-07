@@ -12,6 +12,7 @@ import database from "./config/database";
 import { ApolloServer } from "apollo-server-express";
 import { Resolver, Query, buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/UserResolver";
+import { TrackResolver } from "./resolvers/TrackResolver";
 
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -53,7 +54,7 @@ const main = async () => {
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [Hello, UserResolver],
+            resolvers: [Hello, UserResolver, TrackResolver],
             validate: false,
         }),
         context: ({ req, res }: any) => ({ req, res }),

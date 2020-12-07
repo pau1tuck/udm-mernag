@@ -9,6 +9,7 @@ import {
     ManyToOne,
     OneToMany,
 } from "typeorm";
+
 @ObjectType()
 @Entity()
 export class Track extends BaseEntity {
