@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=react,reactnative,node
 
 src/ormconfig.json
+_files
 
 ### Node ###
 # Logs

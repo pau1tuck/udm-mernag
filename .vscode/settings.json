@@ -7,8 +7,8 @@
     {
       "pgOptions": {
         "ssl": {
-          "requestCert": true,
-          "rejectUnauthorized": true
+          "requestCert": false,
+          "rejectUnauthorized": false
         }
       },
       "previewLimit": 50,

@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import "dotenv/config.js";
+import path from "path";
 import express from "express";
 import { Request, Response } from "express";
 
@@ -36,7 +37,7 @@ const main = async () => {
         session({
             name: "qid",
             store: new RedisStore({
-                client: redisClient,
+                client: redisClient as any,
                 disableTouch: true,
                 disableTTL: true,
             }),
@@ -71,8 +72,8 @@ const main = async () => {
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
 
-    app.get("/", (req: Request, res: Response) => {
-        res.send("Hello, Bastard!");
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname + "/web/build/index.html"));
     });
 
     apolloServer.applyMiddleware({ app });
